@@ -12,10 +12,15 @@ app.use(express.static("public"));
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "CHANGE_THIS_SECRET";
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgresql://postgres:hamza728@localhost:5432/fixora"
-});
+if (!process.env.DATABASE_URL) {
+  console.error("DATABASE_URL is missing from Railway environment variables");
+  process.exit(1);
+}
 
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 app.get("/api/health", (req,res)=>res.json({ok:true, service:"Fixora API"}));
 
 async function initDb(){
