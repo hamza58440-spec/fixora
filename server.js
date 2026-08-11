@@ -12,9 +12,24 @@ app.use(express.static("public"));
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "CHANGE_THIS_SECRET";
 
-if (!process.env.DATABASE_URL) {
-  console.error("DATABASE_URL is missing from Railway environment variables");
+const dbUrl =
+  process.env.DATABASE_URL ||
+  process.env.DATABASE_PUBLIC_URL ||
+  process.env.DATABASE_PRIVATE_URL;
+
+if (!dbUrl) {
+  console.error("NO DATABASE URL FOUND");
+  console.error(
+    "Database variables:",
+    Object.keys(process.env).filter(k => k.includes("DATABASE") || k.includes("PG"))
+  );
   process.exit(1);
+}
+
+const pool = new Pool({
+  connectionString: dbUrl,
+  ssl: { rejectUnauthorized: false }
+});
 }
 
 const pool = new Pool({
