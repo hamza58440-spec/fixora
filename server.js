@@ -201,8 +201,17 @@ app.patch("/api/bookings/:id/status", auth, async (req,res)=>{
 });
 
 initDb()
-  .then(() => app.listen(PORT, () => console.log(`Fixora API running on http://localhost:${PORT}`)))
+  .then(() => console.log("Fixora database initialized"))
   .catch(err => {
     console.error("Database connection failed:", err);
-    process.exit(1);
   });
+
+app.get("/", (req, res) => {
+  res.json({
+    ok: true,
+    service: "Fixora API",
+    message: "Fixora backend is running"
+  });
+});
+
+module.exports = app;
