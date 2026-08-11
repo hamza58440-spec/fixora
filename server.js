@@ -30,7 +30,6 @@ const pool = new Pool({
   connectionString: dbUrl,
   ssl: { rejectUnauthorized: false }
 });
-}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
