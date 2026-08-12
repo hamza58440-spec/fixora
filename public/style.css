@@ -71,4 +71,15 @@
     font-size:17px;
     padding:6px 8px;
   }
+    .nav-actions{
+    display:flex;
+    gap:5px;
+  }
+
+  .login,
+  .signup{
+    display:block;
+    padding:7px 9px;
+    font-size:11px;
+  }
 }
