@@ -595,3 +595,10 @@ setInterval(() => {
         console.error(error);
     }
 }, 10000);
+function toggleMobileMenu(){
+    const nav = document.getElementById("mainNav");
+
+    if(nav){
+        nav.classList.toggle("mobile-open");
+    }
+}
