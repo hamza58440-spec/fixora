@@ -1,3 +1,7 @@
+/* =========================================================
+   FIXORA SERVICES
+========================================================= */
+
 const services = [
   ['🚰','Plumber','Home','Water, pipes & leakage repair'],
   ['⚡','Electrician','Home','Wiring, switches & electrical repair'],
@@ -57,37 +61,59 @@ const services = [
   ['🔥','Welding Work','Outdoor','Welding & metal work']
 ];
 
+
+/* =========================================================
+   SERVICE LIST
+========================================================= */
+
 const list = document.getElementById('serviceList');
 const select = document.getElementById('serviceSelect');
 
 function render(items = services) {
   if (!list) return;
 
-  list.innerHTML = items.map(s => `
-    <article class="service-item">
-      <div style="font-size:28px">${s[0]}</div>
-      <h3>${s[1]}</h3>
-      <p style="color:#71829b;font-size:12px;margin-top:5px">${s[3]}</p>
-      <button onclick="book('${s[1].replace(/'/g, "\\'")}')">
-        Book Now
-      </button>
-    </article>
-  `).join('');
+  list.innerHTML = items.map(function(s) {
+    const safeName = String(s[1]).replace(/'/g, "\\'");
+
+    return `
+      <article class="service-item">
+        <div style="font-size:28px">${s[0]}</div>
+        <h3>${s[1]}</h3>
+        <p style="color:#71829b;font-size:12px;margin-top:5px">
+          ${s[3]}
+        </p>
+        <button onclick="book('${safeName}')">
+          Book Now
+        </button>
+      </article>
+    `;
+  }).join('');
 }
 
 render();
 
+
 if (select) {
-  services.forEach(s => {
+  services.forEach(function(s) {
     const o = document.createElement('option');
+
     o.value = s[1];
     o.textContent = s[1];
+
     select.appendChild(o);
   });
 }
 
+
+/* =========================================================
+   SERVICE FILTER
+========================================================= */
+
 function filterCategory(cat) {
-  const items = services.filter(s => s[2] === cat);
+  const items = services.filter(function(s) {
+    return s[2] === cat;
+  });
+
   render(items);
 
   const serviceList = document.getElementById('serviceList');
@@ -99,6 +125,7 @@ function filterCategory(cat) {
     });
   }
 }
+
 
 function showAll() {
   render();
@@ -107,10 +134,12 @@ function showAll() {
 
   if (serviceList) {
     serviceList.scrollIntoView({
-      behavior: 'smooth'
+      behavior: 'smooth',
+      block: 'start'
     });
   }
 }
+
 
 function searchServices() {
   const input = document.getElementById('searchInput');
@@ -119,11 +148,13 @@ function searchServices() {
 
   const q = input.value.toLowerCase().trim();
 
-  const items = services.filter(s =>
-    (s[1] + ' ' + s[3] + ' ' + s[2])
-      .toLowerCase()
-      .includes(q)
-  );
+  const items = services.filter(function(s) {
+    return (
+      s[1] + ' ' +
+      s[3] + ' ' +
+      s[2]
+    ).toLowerCase().includes(q);
+  });
 
   render(items);
 
@@ -136,6 +167,7 @@ function searchServices() {
     });
   }
 }
+
 
 function book(service) {
   if (select) {
@@ -146,10 +178,16 @@ function book(service) {
 
   if (booking) {
     booking.scrollIntoView({
-      behavior: 'smooth'
+      behavior: 'smooth',
+      block: 'start'
     });
   }
 }
+
+
+/* =========================================================
+   WHATSAPP BOOKING
+========================================================= */
 
 function whatsappBooking() {
   const text = encodeURIComponent(
@@ -162,21 +200,31 @@ function whatsappBooking() {
   );
 }
 
-const BOOKING_KEY = "fixoraBookings";
+
+/* =========================================================
+   BOOKINGS
+========================================================= */
+
+const BOOKING_KEY = 'fixoraBookings';
+
 
 async function getBookings() {
-  const token = localStorage.getItem("fixoraToken");
+  const token = localStorage.getItem('fixoraToken');
 
-  if (!token) return [];
+  if (!token) {
+    return [];
+  }
 
   try {
-    const response = await fetch("/api/bookings", {
+    const response = await fetch('/api/bookings', {
       headers: {
-        "Authorization": "Bearer " + token
+        'Authorization': 'Bearer ' + token
       }
     });
 
-    if (!response.ok) return [];
+    if (!response.ok) {
+      return [];
+    }
 
     const rows = await response.json();
 
@@ -184,16 +232,17 @@ async function getBookings() {
       return Object.assign({}, b, {
         date: b.date || b.booking_date,
         time: b.time || b.booking_time,
-        status: (b.status || "Pending")
-          .replace(/^pending$/i, "Pending")
+        status: String(b.status || 'Pending')
+          .replace(/^pending$/i, 'Pending')
       });
     });
 
   } catch (error) {
-    console.error(error);
+    console.error('getBookings error:', error);
     return [];
   }
 }
+
 
 function saveBookings(items) {
   localStorage.setItem(
@@ -218,18 +267,28 @@ if (bookingForm) {
     const token = localStorage.getItem('fixoraToken');
 
     if (!token) {
-      alert("Please login first.");
+      alert('Please login first.');
       openAuth('login');
       return;
     }
 
     const booking = {
-      service: document.getElementById('serviceSelect')?.value || '',
-      area: document.getElementById('area')?.value.trim() || '',
-      date: document.getElementById('date')?.value || '',
-      time: document.getElementById('time')?.value || '',
-      details: document.getElementById('details')?.value.trim() || ''
+      service:
+        document.getElementById('serviceSelect')?.value || '',
+
+      area:
+        document.getElementById('area')?.value.trim() || '',
+
+      date:
+        document.getElementById('date')?.value || '',
+
+      time:
+        document.getElementById('time')?.value || '',
+
+      details:
+        document.getElementById('details')?.value.trim() || ''
     };
+
 
     if (
       !booking.service ||
@@ -237,9 +296,10 @@ if (bookingForm) {
       !booking.date ||
       !booking.time
     ) {
-      alert("Please fill all required fields.");
+      alert('Please fill all required fields.');
       return;
     }
+
 
     try {
 
@@ -254,58 +314,65 @@ if (bookingForm) {
         body: JSON.stringify(booking)
       });
 
+
       const data = await response.json();
+
 
       if (!response.ok) {
         alert(
           data.error ||
-          "Booking could not be created."
+          'Booking could not be created.'
         );
         return;
       }
 
+
       alert(
-        "Booking created successfully! Booking ID: " +
+        'Booking created successfully! Booking ID: ' +
         data.id
       );
 
+
       const message = encodeURIComponent(
-        "Hello Fixora! New Booking\n" +
-        "Booking ID: " + data.id + "\n" +
-        "Service: " + data.service + "\n" +
-        "Area: " + data.area + "\n" +
-        "Date: " + (data.booking_date || "") + "\n" +
-        "Time: " + (data.booking_time || "") + "\n" +
-        "Details: " + (data.details || "N/A")
+        'Hello Fixora! New Booking\n' +
+        'Booking ID: ' + data.id + '\n' +
+        'Service: ' + data.service + '\n' +
+        'Area: ' + data.area + '\n' +
+        'Date: ' + (data.booking_date || '') + '\n' +
+        'Time: ' + (data.booking_time || '') + '\n' +
+        'Details: ' + (data.details || 'N/A')
       );
 
+
       window.open(
-        "https://wa.me/923207180728?text=" +
-        message,
-        "_blank"
+        'https://wa.me/923207180728?text=' + message,
+        '_blank'
       );
+
 
       this.reset();
 
       await renderDashboard();
 
+
       const dash =
-        document.getElementById("dashboard");
+        document.getElementById('dashboard');
 
       if (dash) {
         dash.scrollIntoView({
-          behavior: "smooth"
+          behavior: 'smooth'
         });
       }
 
     } catch (error) {
 
-      console.error(error);
+      console.error('Booking error:', error);
 
       alert(
-        "Unable to connect to Fixora server."
+        'Unable to connect to Fixora server.'
       );
     }
+
   });
 }
 
@@ -314,7 +381,19 @@ if (bookingForm) {
    AUTH MODAL
 ========================================================= */
 
+/*
+   IMPORTANT:
+   We store the auth mode directly instead of trying
+   to detect it from the modal title.
+*/
+
+window.fixoraAuthMode = 'login';
+
+
 function openAuth(type) {
+
+  window.fixoraAuthMode = type;
+
 
   const modal =
     document.getElementById('modal');
@@ -325,7 +404,11 @@ function openAuth(type) {
   const text =
     document.getElementById('modalText');
 
-  if (!modal || !title || !text) return;
+
+  if (!modal || !title || !text) {
+    return;
+  }
+
 
   if (type === 'provider') {
 
@@ -352,12 +435,16 @@ function openAuth(type) {
       'Log in to your Fixora account.';
   }
 
+
   modal.style.display = 'grid';
 }
 
+
 function openProviderAuth() {
+  window.fixoraAuthMode = 'provider';
   openAuth('provider');
 }
+
 
 function closeModal() {
 
@@ -369,8 +456,10 @@ function closeModal() {
   }
 }
 
+
 const mainModal =
   document.getElementById('modal');
+
 
 if (mainModal) {
 
@@ -391,6 +480,22 @@ if (mainModal) {
    FIND PROVIDER CNIC FIELD
 ========================================================= */
 
+/*
+   This is the main CNIC fix.
+
+   The code checks:
+   1. Common IDs
+   2. Common names
+   3. Placeholder
+   4. Inputs inside auth form
+   5. Inputs inside modal
+   6. Any input containing "cnic" / "nic"
+   7. A 13-digit value
+
+   So even if your HTML uses a different CNIC ID,
+   the provider CNIC will still be detected.
+*/
+
 function getProviderCnicElement() {
 
   const possibleIds = [
@@ -399,8 +504,13 @@ function getProviderCnicElement() {
     'cnic',
     'authCNIC',
     'providerCNIC',
-    'CNIC'
+    'CNIC',
+    'authNIC',
+    'providerNIC',
+    'nic',
+    'NIC'
   ];
+
 
   for (const id of possibleIds) {
 
@@ -412,32 +522,56 @@ function getProviderCnicElement() {
     }
   }
 
-  const byName =
-    document.querySelector(
-      '#authForm input[name="cnic"],' +
-      '#authForm input[name="CNIC"],' +
-      '#authForm input[name="nic"],' +
-      '#authForm input[name="NIC"]'
-    );
 
-  if (byName) {
-    return byName;
+  const selectors = [
+    '#authForm input[name="cnic"]',
+    '#authForm input[name="CNIC"]',
+    '#authForm input[name="nic"]',
+    '#authForm input[name="NIC"]',
+    '#authForm input[placeholder*="CNIC" i]',
+    '#authForm input[placeholder*="NIC" i]',
+    '#modal input[name="cnic"]',
+    '#modal input[name="CNIC"]',
+    '#modal input[name="nic"]',
+    '#modal input[name="NIC"]',
+    '#modal input[placeholder*="CNIC" i]',
+    '#modal input[placeholder*="NIC" i]'
+  ];
+
+
+  for (const selector of selectors) {
+
+    try {
+
+      const element =
+        document.querySelector(selector);
+
+      if (element) {
+        return element;
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  const inputs =
+
+  const allInputs =
     document.querySelectorAll(
-      '#authForm input'
+      '#authForm input, #modal input'
     );
 
-  for (const input of inputs) {
+
+  for (const input of allInputs) {
 
     const text = (
+      (input.id || '') + ' ' +
+      (input.name || '') + ' ' +
       (input.placeholder || '') +
       ' ' +
-      (input.name || '') +
-      ' ' +
-      (input.id || '')
+      (input.getAttribute('aria-label') || '')
     ).toLowerCase();
+
 
     if (
       text.includes('cnic') ||
@@ -446,6 +580,26 @@ function getProviderCnicElement() {
       return input;
     }
   }
+
+
+  /*
+     Final fallback:
+     If the form contains a 13-digit value,
+     treat that input as CNIC.
+  */
+
+  for (const input of allInputs) {
+
+    const value =
+      String(input.value || '')
+        .replace(/[-\s]/g, '');
+
+
+    if (/^\d{13}$/.test(value)) {
+      return input;
+    }
+  }
+
 
   return null;
 }
@@ -458,6 +612,7 @@ function getProviderCnicElement() {
 const authForm =
   document.getElementById('authForm');
 
+
 if (authForm) {
 
   authForm.addEventListener(
@@ -466,60 +621,73 @@ if (authForm) {
 
       e.preventDefault();
 
+
       const nameEl =
         document.getElementById('authName');
+
 
       const phoneEl =
         document.getElementById('authPhone');
 
+
       const passwordEl =
         document.getElementById('authPassword');
+
 
       const cnicEl =
         getProviderCnicElement();
 
+
       const name =
-        nameEl ? nameEl.value.trim() : '';
+        nameEl
+          ? nameEl.value.trim()
+          : '';
+
 
       const phone =
-        phoneEl ? phoneEl.value.trim() : '';
+        phoneEl
+          ? phoneEl.value.trim()
+          : '';
+
 
       const password =
-        passwordEl ? passwordEl.value : '';
+        passwordEl
+          ? passwordEl.value
+          : '';
+
+
+      /*
+         IMPORTANT:
+         Always read CNIC directly from the actual input.
+      */
+
+      const cnicRaw =
+        cnicEl
+          ? String(cnicEl.value || '').trim()
+          : '';
+
 
       const cnic =
-        cnicEl ? cnicEl.value.trim() : '';
+        cnicRaw.replace(/[-\s]/g, '');
 
-      const title =
-        document.getElementById('modalTitle')?.textContent ||
-        '';
+
+      /*
+         IMPORTANT:
+         Use the stored auth mode.
+         Do NOT depend on modal title text.
+      */
+
+      const authMode =
+        window.fixoraAuthMode || 'login';
+
 
       const isProvider =
-        title.toLowerCase().includes('provider');
+        authMode === 'provider';
+
 
       const isSignup =
         isProvider ||
-        title.includes('Create Customer');
-
-      /* -----------------------------------------
-         CUSTOMER VALIDATION
-      ----------------------------------------- */
-
-      if (!isProvider) {
-
-        if (
-          !name ||
-          !phone ||
-          !password
-        ) {
-
-          alert(
-            'Please fill all required fields.'
-          );
-
-          return;
-        }
-      }
+        authMode === 'signup';
 
 
       /* -----------------------------------------
@@ -528,27 +696,77 @@ if (authForm) {
 
       if (isProvider) {
 
-        if (
-          !name ||
-          !phone ||
-          !cnic ||
-          !password
-        ) {
+        if (!name) {
+          alert('Please enter your name.');
+          return;
+        }
+
+
+        if (!phone) {
+          alert('Please enter your phone number.');
+          return;
+        }
+
+
+        if (!cnic) {
+          alert(
+            'CNIC is required for provider registration.'
+          );
+          return;
+        }
+
+
+        if (!/^\d{13}$/.test(cnic)) {
 
           alert(
-            'Name, phone, CNIC and password are required for provider registration.'
+            'Please enter a valid 13-digit CNIC.'
           );
 
           return;
         }
 
-        const cleanCnic =
-          cnic.replace(/[-\s]/g, '');
 
-        if (!/^\d{13}$/.test(cleanCnic)) {
+        if (!password) {
+          alert('Please enter your password.');
+          return;
+        }
+
+      }
+
+
+      /* -----------------------------------------
+         CUSTOMER VALIDATION
+      ----------------------------------------- */
+
+      if (!isProvider) {
+
+        if (
+          !name &&
+          isSignup
+        ) {
 
           alert(
-            'Please enter a valid 13-digit CNIC.'
+            'Please enter your name.'
+          );
+
+          return;
+        }
+
+
+        if (!phone) {
+
+          alert(
+            'Please enter your phone number.'
+          );
+
+          return;
+        }
+
+
+        if (!password) {
+
+          alert(
+            'Please enter your password.'
           );
 
           return;
@@ -557,57 +775,102 @@ if (authForm) {
 
 
       /* -----------------------------------------
+         REQUEST BODY
+      ----------------------------------------- */
+
+      let requestBody;
+
+
+      if (isSignup) {
+
+        requestBody = {
+          name: name,
+          phone: phone,
+          password: password,
+          role: isProvider
+            ? 'provider'
+            : 'customer'
+        };
+
+
+        /*
+           THIS IS THE IMPORTANT FIX.
+           CNIC is explicitly included for providers.
+        */
+
+        if (isProvider) {
+          requestBody.cnic = cnic;
+        }
+
+      } else {
+
+        requestBody = {
+          phone: phone,
+          password: password
+        };
+      }
+
+
+      console.log(
+        'Fixora auth request:',
+        {
+          mode: authMode,
+          role: requestBody.role,
+          hasCNIC:
+            Boolean(requestBody.cnic),
+          cnicLength:
+            requestBody.cnic
+              ? requestBody.cnic.length
+              : 0
+        }
+      );
+
+
+      /* -----------------------------------------
          SEND REQUEST
       ----------------------------------------- */
 
       try {
 
-        const requestBody = isSignup
-          ? {
-              name: name,
-              phone: phone,
-              password: password,
-              role: isProvider
-                ? 'provider'
-                : 'customer',
+        const endpoint =
+          isSignup
+            ? '/api/auth/signup'
+            : '/api/auth/login';
 
-              ...(isProvider
-                ? {
-                    cnic: cnic
-                      .replace(/[-\s]/g, '')
-                  }
-                }
-                : {})
+
+        const response =
+          await fetch(
+            endpoint,
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify(requestBody)
             }
-
-          : {
-              phone: phone,
-              password: password
-            };
+          );
 
 
-        const response = await fetch(
-          '/api/auth/' +
-          (isSignup ? 'signup' : 'login'),
-          {
-            method: 'POST',
+        let data = {};
 
-            headers: {
-              'Content-Type':
-                'application/json'
-            },
-
-            body:
-              JSON.stringify(requestBody)
-          }
-        );
-
-
-        const data =
-          await response.json();
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
 
 
         if (!response.ok) {
+
+          console.error(
+            'Fixora authentication failed:',
+            data
+          );
+
 
           alert(
             data.error ||
@@ -622,15 +885,22 @@ if (authForm) {
            SAVE LOGIN
         ----------------------------------------- */
 
-        localStorage.setItem(
-          'fixoraToken',
-          data.token
-        );
+        if (data.token) {
 
-        localStorage.setItem(
-          'fixoraUser',
-          JSON.stringify(data.user)
-        );
+          localStorage.setItem(
+            'fixoraToken',
+            data.token
+          );
+        }
+
+
+        if (data.user) {
+
+          localStorage.setItem(
+            'fixoraUser',
+            JSON.stringify(data.user)
+          );
+        }
 
 
         alert(
@@ -643,19 +913,28 @@ if (authForm) {
         closeModal();
 
 
-        if (authForm) {
-          authForm.reset();
-        }
+        authForm.reset();
 
 
-        /* Refresh dashboards */
+        /*
+           Reset mode after successful auth.
+        */
+
+        window.fixoraAuthMode = 'login';
+
+
+        /* -----------------------------------------
+           REFRESH DASHBOARDS
+        ----------------------------------------- */
 
         if (
           typeof renderDashboard ===
           'function'
         ) {
+
           await renderDashboard();
         }
+
 
         if (
           isProvider &&
@@ -666,7 +945,9 @@ if (authForm) {
           await renderProviderBookings();
         }
 
+
         applyRoleSecurity();
+
 
       } catch (error) {
 
@@ -674,6 +955,7 @@ if (authForm) {
           'Authentication error:',
           error
         );
+
 
         alert(
           'Unable to connect to Fixora server.'
@@ -693,10 +975,14 @@ async function renderDashboard() {
 
   const box =
     document.getElementById(
-      "bookingDashboard"
+      'bookingDashboard'
     );
 
-  if (!box) return;
+
+  if (!box) {
+    return;
+  }
+
 
   const items =
     await getBookings();
@@ -724,7 +1010,7 @@ async function renderDashboard() {
       const cls =
         String(b.status)
           .toLowerCase()
-          .replace(/\s+/g, "-");
+          .replace(/\s+/g, '-');
 
 
       return `
@@ -733,6 +1019,7 @@ async function renderDashboard() {
           <div class="booking-top">
 
             <div>
+
               <span class="booking-id">
                 ${b.id}
               </span>
@@ -740,6 +1027,7 @@ async function renderDashboard() {
               <h3>
                 ${b.service}
               </h3>
+
             </div>
 
             <span class="status ${cls}">
@@ -780,7 +1068,7 @@ async function renderDashboard() {
           <div class="booking-actions">
 
             ${
-              b.status === "Pending"
+              b.status === 'Pending'
                 ? `
                   <button
                     class="cancel-btn"
@@ -793,7 +1081,7 @@ async function renderDashboard() {
 
 
             ${
-              b.status === "Completed" &&
+              b.status === 'Completed' &&
               !b.rating
                 ? `
                   <button
@@ -820,7 +1108,7 @@ async function renderDashboard() {
         </article>
       `;
 
-    }).join("");
+    }).join('');
 }
 
 
@@ -832,30 +1120,32 @@ async function cancelBooking(id) {
 
   if (
     !confirm(
-      "Cancel this booking?"
+      'Cancel this booking?'
     )
   ) {
     return;
   }
 
+
   const token =
     localStorage.getItem(
-      "fixoraToken"
+      'fixoraToken'
     );
+
 
   try {
 
     const response =
       await fetch(
-        "/api/bookings/" +
+        '/api/bookings/' +
         encodeURIComponent(id) +
-        "/cancel",
+        '/cancel',
         {
-          method: "PATCH",
+          method: 'PATCH',
 
           headers: {
-            "Authorization":
-              "Bearer " + token
+            'Authorization':
+              'Bearer ' + token
           }
         }
       );
@@ -869,7 +1159,7 @@ async function cancelBooking(id) {
 
       alert(
         data.error ||
-        "Booking could not be cancelled."
+        'Booking could not be cancelled.'
       );
 
       return;
@@ -878,12 +1168,13 @@ async function cancelBooking(id) {
 
     await renderDashboard();
 
+
   } catch (e) {
 
     console.error(e);
 
     alert(
-      "Unable to connect to Fixora server."
+      'Unable to connect to Fixora server.'
     );
   }
 }
@@ -903,12 +1194,12 @@ function openReview(id) {
 
   document
     .querySelectorAll(
-      "#ratingPicker button"
+      '#ratingPicker button'
     )
     .forEach(function(btn) {
 
       btn.classList.remove(
-        "selected"
+        'selected'
       );
 
     });
@@ -916,21 +1207,23 @@ function openReview(id) {
 
   const reviewText =
     document.getElementById(
-      "reviewText"
+      'reviewText'
     );
 
+
   if (reviewText) {
-    reviewText.value = "";
+    reviewText.value = '';
   }
 
 
   const modal =
     document.getElementById(
-      "reviewModal"
+      'reviewModal'
     );
 
+
   if (modal) {
-    modal.style.display = "grid";
+    modal.style.display = 'grid';
   }
 }
 
@@ -939,23 +1232,24 @@ function closeReview() {
 
   const modal =
     document.getElementById(
-      "reviewModal"
+      'reviewModal'
     );
 
+
   if (modal) {
-    modal.style.display = "none";
+    modal.style.display = 'none';
   }
 }
 
 
 document
   .querySelectorAll(
-    "#ratingPicker button"
+    '#ratingPicker button'
   )
   .forEach(function(btn) {
 
     btn.addEventListener(
-      "click",
+      'click',
       function() {
 
         window._fixoraRating =
@@ -966,13 +1260,13 @@ document
 
         document
           .querySelectorAll(
-            "#ratingPicker button"
+            '#ratingPicker button'
           )
           .forEach(
             function(x) {
 
               x.classList.toggle(
-                "selected",
+                'selected',
                 Number(
                   x.dataset.rating
                 ) <=
@@ -993,7 +1287,7 @@ async function submitReview() {
   if (!window._fixoraRating) {
 
     alert(
-      "Please select a rating."
+      'Please select a rating.'
     );
 
     return;
@@ -1002,13 +1296,13 @@ async function submitReview() {
 
   const token =
     localStorage.getItem(
-      "fixoraToken"
+      'fixoraToken'
     );
 
 
   const reviewEl =
     document.getElementById(
-      "reviewText"
+      'reviewText'
     );
 
 
@@ -1016,20 +1310,20 @@ async function submitReview() {
 
     const response =
       await fetch(
-        "/api/bookings/" +
+        '/api/bookings/' +
         encodeURIComponent(
           window._fixoraReviewId
         ) +
-        "/review",
+        '/review',
         {
-          method: "POST",
+          method: 'POST',
 
           headers: {
-            "Content-Type":
-              "application/json",
+            'Content-Type':
+              'application/json',
 
-            "Authorization":
-              "Bearer " + token
+            'Authorization':
+              'Bearer ' + token
           },
 
           body: JSON.stringify({
@@ -1039,7 +1333,7 @@ async function submitReview() {
             review:
               reviewEl
                 ? reviewEl.value.trim()
-                : ""
+                : ''
           })
         }
       );
@@ -1053,7 +1347,7 @@ async function submitReview() {
 
       alert(
         data.error ||
-        "Review could not be saved."
+        'Review could not be saved.'
       );
 
       return;
@@ -1064,16 +1358,18 @@ async function submitReview() {
 
     await renderDashboard();
 
+
     alert(
-      "Thank you for your review!"
+      'Thank you for your review!'
     );
+
 
   } catch (e) {
 
     console.error(e);
 
     alert(
-      "Unable to connect to Fixora server."
+      'Unable to connect to Fixora server.'
     );
   }
 }
@@ -1087,10 +1383,14 @@ function toggleProviderMode() {
 
   const checkbox =
     document.getElementById(
-      "providerMode"
+      'providerMode'
     );
 
-  if (!checkbox) return;
+
+  if (!checkbox) {
+    return;
+  }
+
 
   const on =
     checkbox.checked;
@@ -1098,24 +1398,31 @@ function toggleProviderMode() {
 
   const locked =
     document.getElementById(
-      "providerLocked"
+      'providerLocked'
     );
+
 
   const panel =
     document.getElementById(
-      "providerPanel"
+      'providerPanel'
     );
 
 
   if (locked) {
+
     locked.style.display =
-      on ? "none" : "block";
+      on
+        ? 'none'
+        : 'block';
   }
 
 
   if (panel) {
+
     panel.style.display =
-      on ? "block" : "none";
+      on
+        ? 'block'
+        : 'none';
   }
 
 
@@ -1129,19 +1436,22 @@ async function populateProviderServices() {
 
   const select =
     document.getElementById(
-      "providerServiceFilter"
+      'providerServiceFilter'
     );
 
-  if (!select) return;
+
+  if (!select) {
+    return;
+  }
 
 
   const existing =
     new Set(
       Array.from(
         select.options
-      ).map(
-        o => o.value
-      )
+      ).map(function(o) {
+        return o.value;
+      })
     );
 
 
@@ -1159,16 +1469,20 @@ async function populateProviderServices() {
 
         const o =
           document.createElement(
-            "option"
+            'option'
           );
+
 
         o.value =
           b.service;
 
+
         o.textContent =
           b.service;
 
+
         select.appendChild(o);
+
 
         existing.add(
           b.service
@@ -1184,30 +1498,41 @@ async function renderProviderBookings() {
 
   const box =
     document.getElementById(
-      "providerBookings"
+      'providerBookings'
     );
 
-  if (!box) return;
+
+  if (!box) {
+    return;
+  }
 
 
   const userRaw =
     localStorage.getItem(
-      "fixoraUser"
+      'fixoraUser'
     );
+
 
   let user = null;
 
+
   try {
+
     user =
       userRaw
         ? JSON.parse(userRaw)
         : null;
+
   } catch {
+
     user = null;
   }
 
 
-  if (!user || user.role !== "provider") {
+  if (
+    !user ||
+    user.role !== 'provider'
+  ) {
 
     box.innerHTML = `
       <div class="empty-bookings">
@@ -1228,8 +1553,8 @@ async function renderProviderBookings() {
 
   const filter =
     document.getElementById(
-      "providerServiceFilter"
-    )?.value || "All";
+      'providerServiceFilter'
+    )?.value || 'All';
 
 
   const allItems =
@@ -1237,62 +1562,74 @@ async function renderProviderBookings() {
 
 
   const items =
-    allItems.filter(
-      b =>
-        filter === "All" ||
+    allItems.filter(function(b) {
+
+      return (
+        filter === 'All' ||
         b.service === filter
-    );
+      );
+
+    });
 
 
   const pending =
     document.getElementById(
-      "providerPending"
+      'providerPending'
     );
+
 
   const accepted =
     document.getElementById(
-      "providerAccepted"
+      'providerAccepted'
     );
+
 
   const completed =
     document.getElementById(
-      "providerCompleted"
+      'providerCompleted'
     );
 
 
   if (pending) {
 
     pending.textContent =
-      items.filter(
-        b =>
-          b.status === "Pending" ||
-          b.status === "pending"
-      ).length;
+      items.filter(function(b) {
+
+        return (
+          b.status === 'Pending' ||
+          b.status === 'pending'
+        );
+
+      }).length;
   }
 
 
   if (accepted) {
 
     accepted.textContent =
-      items.filter(
-        b =>
-          [
-            "Accepted",
-            "accepted",
-            "On the Way"
-          ].includes(b.status)
-      ).length;
+      items.filter(function(b) {
+
+        return [
+          'Accepted',
+          'accepted',
+          'On the Way'
+        ].includes(b.status);
+
+      }).length;
   }
 
 
   if (completed) {
 
     completed.textContent =
-      items.filter(
-        b =>
-          b.status === "Completed" ||
-          b.status === "completed"
-      ).length;
+      items.filter(function(b) {
+
+        return (
+          b.status === 'Completed' ||
+          b.status === 'completed'
+        );
+
+      }).length;
   }
 
 
@@ -1313,146 +1650,143 @@ async function renderProviderBookings() {
   }
 
 
-  /*
-     IMPORTANT:
-     Provider does NOT display customer's
-     phone number here.
-  */
-
   box.innerHTML =
-    items.map(
-      function(b) {
+    items.map(function(b) {
 
-        let actions = "";
-
-
-        if (
-          b.status === "Pending" ||
-          b.status === "pending"
-        ) {
-
-          actions = `
-            <button
-              onclick="providerUpdateBooking(
-                '${b.id}',
-                'Accepted'
-              )">
-              ✓ Accept
-            </button>
-
-            <button
-              class="cancel-btn"
-              onclick="providerUpdateBooking(
-                '${b.id}',
-                'Cancelled'
-              )">
-              Reject
-            </button>
-          `;
-
-        } else if (
-          b.status === "Accepted"
-        ) {
-
-          actions = `
-            <button
-              onclick="providerUpdateBooking(
-                '${b.id}',
-                'On the Way'
-              )">
-              🚗 On the Way
-            </button>
-          `;
-
-        } else if (
-          b.status === "On the Way"
-        ) {
-
-          actions = `
-            <button
-              onclick="providerUpdateBooking(
-                '${b.id}',
-                'Completed'
-              )">
-              ✓ Complete Job
-            </button>
-          `;
-        }
+      let actions = '';
 
 
-        const statusClass =
-          String(
-            b.status || ""
-          )
-            .toLowerCase()
-            .replace(/\s+/g, "-");
+      if (
+        b.status === 'Pending' ||
+        b.status === 'pending'
+      ) {
 
+        actions = `
+          <button
+            onclick="providerUpdateBooking(
+              '${b.id}',
+              'Accepted'
+            )">
+            ✓ Accept
+          </button>
 
-        return `
-          <article class="booking-card-item">
-
-            <div class="booking-top">
-
-              <div>
-
-                <span class="booking-id">
-                  ${b.id}
-                </span>
-
-                <h3>
-                  ${b.service}
-                </h3>
-
-                <p class="provider-customer">
-                  Customer: ${b.name || "Customer"}
-                </p>
-
-              </div>
-
-              <span class="status ${statusClass}">
-                ${b.status}
-              </span>
-
-            </div>
-
-
-            <div class="booking-meta">
-
-              <span>
-                📅 ${b.booking_date || b.date || ""}
-              </span>
-
-              <span>
-                ⏰ ${b.booking_time || b.time || ""}
-              </span>
-
-              <span>
-                📍 ${b.area || ""}
-              </span>
-
-            </div>
-
-
-            ${
-              b.details
-                ? `
-                  <p class="booking-details">
-                    ${b.details}
-                  </p>
-                `
-                : ""
-            }
-
-
-            <div class="booking-actions">
-              ${actions}
-            </div>
-
-          </article>
+          <button
+            class="cancel-btn"
+            onclick="providerUpdateBooking(
+              '${b.id}',
+              'Cancelled'
+            )">
+            Reject
+          </button>
         `;
 
+      } else if (
+        b.status === 'Accepted'
+      ) {
+
+        actions = `
+          <button
+            onclick="providerUpdateBooking(
+              '${b.id}',
+              'On the Way'
+            )">
+            🚗 On the Way
+          </button>
+        `;
+
+      } else if (
+        b.status === 'On the Way'
+      ) {
+
+        actions = `
+          <button
+            onclick="providerUpdateBooking(
+              '${b.id}',
+              'Completed'
+            )">
+            ✓ Complete Job
+          </button>
+        `;
       }
-    ).join("");
+
+
+      const statusClass =
+        String(
+          b.status || ''
+        )
+          .toLowerCase()
+          .replace(/\s+/g, '-');
+
+
+      return `
+        <article class="booking-card-item">
+
+          <div class="booking-top">
+
+            <div>
+
+              <span class="booking-id">
+                ${b.id}
+              </span>
+
+              <h3>
+                ${b.service}
+              </h3>
+
+              <p class="provider-customer">
+                Customer:
+                ${b.name || 'Customer'}
+              </p>
+
+            </div>
+
+
+            <span class="status ${statusClass}">
+              ${b.status}
+            </span>
+
+          </div>
+
+
+          <div class="booking-meta">
+
+            <span>
+              📅
+              ${b.booking_date || b.date || ''}
+            </span>
+
+            <span>
+              ⏰
+              ${b.booking_time || b.time || ''}
+            </span>
+
+            <span>
+              📍
+              ${b.area || ''}
+            </span>
+
+          </div>
+
+
+          ${
+            b.details
+              ? `
+                <p class="booking-details">
+                  ${b.details}
+                </p>
+              `
+              : ''
+          }
+
+
+          <div class="booking-actions">
+            ${actions}
+          </div>
+
+        </article>
+      `;
+
+    }).join('');
 }
 
 
@@ -1463,7 +1797,7 @@ async function providerUpdateBooking(
 
   const token =
     localStorage.getItem(
-      "fixoraToken"
+      'fixoraToken'
     );
 
 
@@ -1471,18 +1805,18 @@ async function providerUpdateBooking(
 
     const response =
       await fetch(
-        "/api/bookings/" +
+        '/api/bookings/' +
         encodeURIComponent(id) +
-        "/status",
+        '/status',
         {
-          method: "PATCH",
+          method: 'PATCH',
 
           headers: {
-            "Content-Type":
-              "application/json",
+            'Content-Type':
+              'application/json',
 
-            "Authorization":
-              "Bearer " + token
+            'Authorization':
+              'Bearer ' + token
           },
 
           body:
@@ -1501,7 +1835,7 @@ async function providerUpdateBooking(
 
       alert(
         data.error ||
-        "Booking status could not be updated."
+        'Booking status could not be updated.'
       );
 
       return;
@@ -1512,12 +1846,13 @@ async function providerUpdateBooking(
 
     await renderDashboard();
 
+
   } catch (e) {
 
     console.error(e);
 
     alert(
-      "Unable to connect to Fixora server."
+      'Unable to connect to Fixora server.'
     );
   }
 }
@@ -1528,34 +1863,34 @@ async function providerUpdateBooking(
 ========================================================= */
 
 const ADMIN_SERVICE_KEY =
-  "fixoraAdminServices";
+  'fixoraAdminServices';
 
 
 const defaultAdminServices = [
-  "Plumber",
-  "Electrician",
-  "Carpenter",
-  "Painter",
-  "AC Repair",
-  "Refrigerator Repair",
-  "Washing Machine Repair",
-  "Car Mechanic",
-  "Bike Mechanic",
-  "Glass Work",
-  "Aluminium Work",
-  "Home Cleaning",
-  "Deep Cleaning",
-  "Sofa Cleaning",
-  "Home Shifting",
-  "Small Delivery",
-  "Laptop Repair",
-  "CCTV Installation",
-  "Wi-Fi Setup",
-  "Gardening",
-  "Pest Control",
-  "Solar Installation",
-  "Generator Repair",
-  "Welding Work"
+  'Plumber',
+  'Electrician',
+  'Carpenter',
+  'Painter',
+  'AC Repair',
+  'Refrigerator Repair',
+  'Washing Machine Repair',
+  'Car Mechanic',
+  'Bike Mechanic',
+  'Glass Work',
+  'Aluminium Work',
+  'Home Cleaning',
+  'Deep Cleaning',
+  'Sofa Cleaning',
+  'Home Shifting',
+  'Small Delivery',
+  'Laptop Repair',
+  'CCTV Installation',
+  'Wi-Fi Setup',
+  'Gardening',
+  'Pest Control',
+  'Solar Installation',
+  'Generator Repair',
+  'Welding Work'
 ];
 
 
@@ -1575,6 +1910,7 @@ function getAdminServices() {
       saved.length
       ? saved
       : defaultAdminServices.slice();
+
 
   } catch (e) {
 
@@ -1596,25 +1932,29 @@ async function toggleAdmin() {
 
   const panel =
     document.getElementById(
-      "adminPanel"
+      'adminPanel'
     );
+
 
   const locked =
     document.getElementById(
-      "adminLocked"
+      'adminLocked'
     );
 
 
-  if (!panel || !locked) return;
+  if (!panel || !locked) {
+    return;
+  }
 
 
   const rawUser =
     localStorage.getItem(
-      "fixoraUser"
+      'fixoraUser'
     );
 
 
   let user = null;
+
 
   try {
 
@@ -1629,10 +1969,13 @@ async function toggleAdmin() {
   }
 
 
-  if (!user || user.role !== "admin") {
+  if (
+    !user ||
+    user.role !== 'admin'
+  ) {
 
     alert(
-      "Admin access only."
+      'Admin access only.'
     );
 
     return;
@@ -1640,14 +1983,19 @@ async function toggleAdmin() {
 
 
   const open =
-    panel.style.display === "none";
+    panel.style.display === 'none';
 
 
   panel.style.display =
-    open ? "block" : "none";
+    open
+      ? 'block'
+      : 'none';
+
 
   locked.style.display =
-    open ? "none" : "block";
+    open
+      ? 'none'
+      : 'block';
 
 
   if (open) {
@@ -1664,26 +2012,30 @@ async function renderAdmin() {
 
   const bookingsCount =
     document.getElementById(
-      "adminBookings"
+      'adminBookings'
     );
+
 
   const pendingCount =
     document.getElementById(
-      "adminPending"
+      'adminPending'
     );
+
 
   const completedCount =
     document.getElementById(
-      "adminCompleted"
+      'adminCompleted'
     );
+
 
   const servicesCount =
     document.getElementById(
-      "adminServices"
+      'adminServices'
     );
 
 
   if (bookingsCount) {
+
     bookingsCount.textContent =
       items.length;
   }
@@ -1692,24 +2044,30 @@ async function renderAdmin() {
   if (pendingCount) {
 
     pendingCount.textContent =
-      items.filter(
-        b =>
+      items.filter(function(b) {
+
+        return (
           String(b.status)
             .toLowerCase() ===
-          "pending"
-      ).length;
+          'pending'
+        );
+
+      }).length;
   }
 
 
   if (completedCount) {
 
     completedCount.textContent =
-      items.filter(
-        b =>
+      items.filter(function(b) {
+
+        return (
           String(b.status)
             .toLowerCase() ===
-          "completed"
-      ).length;
+          'completed'
+        );
+
+      }).length;
   }
 
 
@@ -1718,6 +2076,7 @@ async function renderAdmin() {
 
 
   if (servicesCount) {
+
     servicesCount.textContent =
       services.length;
   }
@@ -1725,7 +2084,7 @@ async function renderAdmin() {
 
   const list =
     document.getElementById(
-      "adminBookingsList"
+      'adminBookingsList'
     );
 
 
@@ -1733,8 +2092,15 @@ async function renderAdmin() {
 
     list.innerHTML =
       items.length
-        ? items.map(
-            b => `
+        ? items.map(function(b) {
+
+            const statusClass =
+              String(b.status)
+                .toLowerCase()
+                .replace(/\s+/g, '-');
+
+
+            return `
               <div class="admin-row">
 
                 <div>
@@ -1748,28 +2114,25 @@ async function renderAdmin() {
                   </strong>
 
                   <small>
-                    ${b.name || "Customer"}
+                    ${b.name || 'Customer'}
                     ·
-                    ${b.area || ""}
+                    ${b.area || ''}
                     ·
-                    ${b.date || ""}
-                    ${b.time || ""}
+                    ${b.date || ''}
+                    ${b.time || ''}
                   </small>
 
                 </div>
 
                 <span
-                  class="status ${
-                    String(b.status)
-                      .toLowerCase()
-                      .replace(/\s+/g, "-")
-                  }">
+                  class="status ${statusClass}">
                   ${b.status}
                 </span>
 
               </div>
-            `
-          ).join("")
+            `;
+
+          }).join('')
 
         : `
           <p class="admin-empty">
@@ -1781,15 +2144,16 @@ async function renderAdmin() {
 
   const serviceList =
     document.getElementById(
-      "adminServicesList"
+      'adminServicesList'
     );
 
 
   if (serviceList) {
 
     serviceList.innerHTML =
-      services.map(
-        (s, i) => `
+      services.map(function(s, i) {
+
+        return `
           <div class="service-admin-row">
 
             <span>
@@ -1802,8 +2166,9 @@ async function renderAdmin() {
             </button>
 
           </div>
-        `
-      ).join("");
+        `;
+
+      }).join('');
   }
 }
 
@@ -1812,25 +2177,26 @@ function addAdminService() {
 
   const input =
     document.getElementById(
-      "newServiceName"
+      'newServiceName'
     );
+
 
   const category =
     document.getElementById(
-      "newServiceCategory"
+      'newServiceCategory'
     );
 
 
   const name =
     input
       ? input.value.trim()
-      : "";
+      : '';
 
 
   if (!name) {
 
     alert(
-      "Enter a service name."
+      'Enter a service name.'
     );
 
     return;
@@ -1842,15 +2208,18 @@ function addAdminService() {
 
 
   if (
-    services.some(
-      s =>
+    services.some(function(s) {
+
+      return (
         s.toLowerCase() ===
         name.toLowerCase()
-    )
+      );
+
+    })
   ) {
 
     alert(
-      "This service already exists."
+      'This service already exists.'
     );
 
     return;
@@ -1859,17 +2228,19 @@ function addAdminService() {
 
   services.push(name);
 
+
   saveAdminServices(
     services
   );
 
 
   if (input) {
-    input.value = "";
+    input.value = '';
   }
 
+
   if (category) {
-    category.value = "";
+    category.value = '';
   }
 
 
@@ -1885,9 +2256,9 @@ function removeAdminService(i) {
 
   if (
     !confirm(
-      "Remove " +
+      'Remove ' +
       services[i] +
-      " from the demo service list?"
+      ' from the demo service list?'
     )
   ) {
     return;
@@ -1896,9 +2267,11 @@ function removeAdminService(i) {
 
   services.splice(i, 1);
 
+
   saveAdminServices(
     services
   );
+
 
   renderAdmin();
 }
@@ -1914,7 +2287,7 @@ function applyRoleSecurity() {
 
     const rawUser =
       localStorage.getItem(
-        "fixoraUser"
+        'fixoraUser'
       );
 
 
@@ -1927,33 +2300,36 @@ function applyRoleSecurity() {
     const role =
       user && user.role
         ? user.role
-        : "guest";
+        : 'guest';
 
 
     const providerMode =
       document.getElementById(
-        "providerMode"
+        'providerMode'
       );
+
 
     const providerPanel =
       document.getElementById(
-        "providerPanel"
+        'providerPanel'
       );
+
 
     const providerLocked =
       document.getElementById(
-        "providerLocked"
+        'providerLocked'
       );
 
 
     const adminPanel =
       document.getElementById(
-        "adminPanel"
+        'adminPanel'
       );
+
 
     const adminLocked =
       document.getElementById(
-        "adminLocked"
+        'adminLocked'
       );
 
 
@@ -1961,7 +2337,7 @@ function applyRoleSecurity() {
        PROVIDER
     ----------------------------------------- */
 
-    if (role !== "provider") {
+    if (role !== 'provider') {
 
       if (providerMode) {
 
@@ -1971,27 +2347,31 @@ function applyRoleSecurity() {
         providerMode.disabled =
           true;
 
+
         const label =
           providerMode.closest(
-            "label"
+            'label'
           );
+
 
         if (label) {
           label.style.display =
-            "none";
+            'none';
         }
       }
 
 
       if (providerPanel) {
+
         providerPanel.style.display =
-          "none";
+          'none';
       }
 
 
       if (providerLocked) {
+
         providerLocked.style.display =
-          "none";
+          'none';
       }
 
     } else {
@@ -2001,17 +2381,18 @@ function applyRoleSecurity() {
         providerMode.disabled =
           false;
 
+
         const label =
           providerMode.closest(
-            "label"
+            'label'
           );
+
 
         if (label) {
           label.style.display =
-            "block";
+            'block';
         }
       }
-
     }
 
 
@@ -2019,16 +2400,19 @@ function applyRoleSecurity() {
        ADMIN
     ----------------------------------------- */
 
-    if (role !== "admin") {
+    if (role !== 'admin') {
 
       if (adminPanel) {
+
         adminPanel.style.display =
-          "none";
+          'none';
       }
 
+
       if (adminLocked) {
+
         adminLocked.style.display =
-          "none";
+          'none';
       }
 
 
@@ -2040,40 +2424,45 @@ function applyRoleSecurity() {
           function(element) {
 
             element.style.display =
-              "none";
+              'none';
 
           }
         );
 
     }
 
+
   } catch (error) {
 
     console.error(
-      "Role protection error:",
+      'Role protection error:',
       error
     );
 
 
     const providerPanel =
       document.getElementById(
-        "providerPanel"
+        'providerPanel'
       );
+
 
     const adminPanel =
       document.getElementById(
-        "adminPanel"
+        'adminPanel'
       );
 
 
     if (providerPanel) {
+
       providerPanel.style.display =
-        "none";
+        'none';
     }
 
+
     if (adminPanel) {
+
       adminPanel.style.display =
-        "none";
+        'none';
     }
   }
 }
@@ -2089,12 +2478,13 @@ async function secureAdminDashboard() {
 
     const rawUser =
       localStorage.getItem(
-        "fixoraUser"
+        'fixoraUser'
       );
+
 
     const token =
       localStorage.getItem(
-        "fixoraToken"
+        'fixoraToken'
       );
 
 
@@ -2107,18 +2497,18 @@ async function secureAdminDashboard() {
       JSON.parse(rawUser);
 
 
-    if (user.role !== "admin") {
+    if (user.role !== 'admin') {
       return;
     }
 
 
     const response =
       await fetch(
-        "/api/bookings",
+        '/api/bookings',
         {
           headers: {
-            "Authorization":
-              "Bearer " + token
+            'Authorization':
+              'Bearer ' + token
           }
         }
       );
@@ -2127,7 +2517,7 @@ async function secureAdminDashboard() {
     if (!response.ok) {
 
       console.error(
-        "Admin bookings request failed:",
+        'Admin bookings request failed:',
         response.status
       );
 
@@ -2141,22 +2531,25 @@ async function secureAdminDashboard() {
 
     const bookingsCount =
       document.getElementById(
-        "adminBookings"
+        'adminBookings'
       );
+
 
     const pendingCount =
       document.getElementById(
-        "adminPending"
+        'adminPending'
       );
+
 
     const completedCount =
       document.getElementById(
-        "adminCompleted"
+        'adminCompleted'
       );
+
 
     const bookingsList =
       document.getElementById(
-        "adminBookingsList"
+        'adminBookingsList'
       );
 
 
@@ -2170,24 +2563,30 @@ async function secureAdminDashboard() {
     if (pendingCount) {
 
       pendingCount.textContent =
-        bookings.filter(
-          b =>
+        bookings.filter(function(b) {
+
+          return (
             String(b.status)
               .toLowerCase() ===
-            "pending"
-        ).length;
+            'pending'
+          );
+
+        }).length;
     }
 
 
     if (completedCount) {
 
       completedCount.textContent =
-        bookings.filter(
-          b =>
+        bookings.filter(function(b) {
+
+          return (
             String(b.status)
               .toLowerCase() ===
-            "completed"
-        ).length;
+            'completed'
+          );
+
+        }).length;
     }
 
 
@@ -2196,14 +2595,14 @@ async function secureAdminDashboard() {
       if (!bookings.length) {
 
         bookingsList.innerHTML =
-          "No bookings yet.";
+          'No bookings yet.';
 
       } else {
 
         bookingsList.innerHTML =
-          bookings.map(
-            b => `
+          bookings.map(function(b) {
 
+            return `
               <div class="admin-booking-item">
 
                 <strong>
@@ -2211,47 +2610,47 @@ async function secureAdminDashboard() {
                 </strong>
 
                 <div>
-                  ${b.service || ""}
+                  ${b.service || ''}
                 </div>
 
                 <div>
                   Customer:
                   ${b.customer_name ||
                     b.name ||
-                    "Customer"}
+                    'Customer'}
                 </div>
 
                 <div>
                   Phone:
                   ${b.customer_phone ||
                     b.phone ||
-                    "N/A"}
+                    'N/A'}
                 </div>
 
                 <div>
                   📅
                   ${b.booking_date ||
                     b.date ||
-                    ""}
+                    ''}
                 </div>
 
                 <div>
                   ⏰
                   ${b.booking_time ||
                     b.time ||
-                    ""}
+                    ''}
                 </div>
 
                 <div>
                   📍
-                  ${b.area || ""}
+                  ${b.area || ''}
                 </div>
 
                 <div>
                   Status:
                   <strong>
                     ${b.status ||
-                      "Pending"}
+                      'Pending'}
                   </strong>
                 </div>
 
@@ -2263,7 +2662,7 @@ async function secureAdminDashboard() {
                         ${b.provider_name}
                       </div>
                     `
-                    : ""
+                    : ''
                 }
 
                 ${
@@ -2274,20 +2673,21 @@ async function secureAdminDashboard() {
                         ${b.details}
                       </div>
                     `
-                    : ""
+                    : ''
                 }
 
               </div>
+            `;
 
-            `
-          ).join("");
+          }).join('');
       }
     }
+
 
   } catch (error) {
 
     console.error(
-      "Admin dashboard error:",
+      'Admin dashboard error:',
       error
     );
   }
@@ -2302,14 +2702,14 @@ function toggleMobileMenu() {
 
   const nav =
     document.getElementById(
-      "mainNav"
+      'mainNav'
     );
 
 
   if (nav) {
 
     nav.classList.toggle(
-      "mobile-open"
+      'mobile-open'
     );
   }
 }
@@ -2320,12 +2720,13 @@ function toggleMobileMenu() {
 ========================================================= */
 
 document.addEventListener(
-  "DOMContentLoaded",
+  'DOMContentLoaded',
   function() {
 
     applyRoleSecurity();
 
     renderDashboard();
+
 
     setTimeout(
       secureAdminDashboard,
@@ -2345,7 +2746,7 @@ setInterval(
 
     const rawUser =
       localStorage.getItem(
-        "fixoraUser"
+        'fixoraUser'
       );
 
 
@@ -2360,36 +2761,33 @@ setInterval(
         JSON.parse(rawUser);
 
 
-      if (user.role === "admin") {
+      if (user.role === 'admin') {
 
         secureAdminDashboard();
-
       }
 
 
-      if (user.role === "provider") {
+      if (user.role === 'provider') {
 
         const panel =
           document.getElementById(
-            "providerPanel"
+            'providerPanel'
           );
 
 
         if (
           panel &&
-          panel.style.display !==
-          "none"
+          panel.style.display !== 'none'
         ) {
 
           renderProviderBookings();
-
         }
       }
+
 
     } catch (error) {
 
       console.error(error);
-
     }
 
   },
