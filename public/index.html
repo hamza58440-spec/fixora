@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fixora — All Services. One Place.</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixora — All Services. One Place.</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -1011,40 +1011,11 @@
       id="ratingPicker"
     >
 
-      <button
-        type="button"
-        data-rating="1"
-      >
-        ★
-      </button>
-
-      <button
-        type="button"
-        data-rating="2"
-      >
-        ★
-      </button>
-
-      <button
-        type="button"
-        data-rating="3"
-      >
-        ★
-      </button>
-
-      <button
-        type="button"
-        data-rating="4"
-      >
-        ★
-      </button>
-
-      <button
-        type="button"
-        data-rating="5"
-      >
-        ★
-      </button>
+      <button type="button" data-rating="1">★</button>
+      <button type="button" data-rating="2">★</button>
+      <button type="button" data-rating="3">★</button>
+      <button type="button" data-rating="4">★</button>
+      <button type="button" data-rating="5">★</button>
 
     </div>
 
@@ -1074,6 +1045,7 @@
   class="floating-wa"
   href="https://wa.me/923207180728"
   target="_blank"
+  rel="noopener noreferrer"
   aria-label="Fixora Support"
 >
   ☏
@@ -1085,9 +1057,9 @@
 
 <script>
 
-/* ================================
+/* =================================
    PROVIDER AUTH UI
-================================ */
+================================= */
 
 let providerAuthMode = "login";
 
@@ -1113,6 +1085,11 @@ function openProviderAuth(type = "login") {
 
   const nicInput =
     document.getElementById("providerNicInput");
+
+  if (!modal || !title || !text || !nameInput || !nicBox || !nicInput) {
+    return;
+  }
+
 
   if (type === "signup") {
 
@@ -1140,7 +1117,17 @@ function openProviderAuth(type = "login") {
 
     nicBox.style.display = "none";
 
+    /*
+      IMPORTANT:
+      CNIC is NOT required during provider login.
+    */
     nicInput.required = false;
+
+    /*
+      Clear old CNIC value when switching to login.
+      This prevents old signup data from causing confusion.
+    */
+    nicInput.value = "";
 
   }
 
@@ -1148,6 +1135,10 @@ function openProviderAuth(type = "login") {
 
 }
 
+
+/* =================================
+   CLOSE PROVIDER AUTH
+================================= */
 
 function closeProviderAuth() {
 
@@ -1161,256 +1152,336 @@ function closeProviderAuth() {
 }
 
 
-document
-  .getElementById("providerAuthModal")
-  .addEventListener("click", function(e) {
+const providerAuthModal =
+  document.getElementById("providerAuthModal");
 
-    if (e.target.id === "providerAuthModal") {
-      closeProviderAuth();
+if (providerAuthModal) {
+
+  providerAuthModal.addEventListener(
+    "click",
+    function(e) {
+
+      if (e.target.id === "providerAuthModal") {
+        closeProviderAuth();
+      }
+
     }
+  );
 
-  });
+}
 
 
-/* ================================
+/* =================================
    PROVIDER AUTH SUBMIT
-================================ */
+================================= */
 
-document
-  .getElementById("providerAuthForm")
-  .addEventListener("submit", async function(e) {
-
-    e.preventDefault();
-
-    const name =
-      document
-        .getElementById("providerNameInput")
-        .value
-        .trim();
-
-    const phone =
-      document
-        .getElementById("providerPhoneInput")
-        .value
-        .trim();
-
-    const nic =
-      document
-        .getElementById("providerNicInput")
-        .value
-        .trim();
-
-    const password =
-      document
-        .getElementById("providerPasswordInput")
-        .value;
+const providerAuthForm =
+  document.getElementById("providerAuthForm");
 
 
-    if (!phone || !password) {
+if (providerAuthForm) {
 
-      alert("Please fill all required fields.");
+  providerAuthForm.addEventListener(
+    "submit",
+    async function(e) {
 
-      return;
-
-    }
-
-
-    if (providerAuthMode === "signup") {
-
-      if (!name) {
-
-        alert("Please enter your full name.");
-
-        return;
-
-      }
+      e.preventDefault();
 
 
-      if (!nic) {
+      const nameInput =
+        document.getElementById("providerNameInput");
 
-        alert("CNIC / NIC is required for provider registration.");
+      const phoneInput =
+        document.getElementById("providerPhoneInput");
 
-        return;
+      const nicInput =
+        document.getElementById("providerNicInput");
 
-      }
+      const passwordInput =
+        document.getElementById("providerPasswordInput");
 
 
-      const digitsOnly =
-        nic.replace(/\D/g, "");
+      const name =
+        nameInput
+          ? nameInput.value.trim()
+          : "";
 
-      if (digitsOnly.length !== 13) {
+      const phone =
+        phoneInput
+          ? phoneInput.value.trim()
+          : "";
 
-        alert(
-          "Please enter a valid 13-digit CNIC/NIC number."
-        );
+      const nic =
+        nicInput
+          ? nicInput.value.trim()
+          : "";
+
+      const password =
+        passwordInput
+          ? passwordInput.value
+          : "";
+
+
+      /* PHONE + PASSWORD ALWAYS REQUIRED */
+
+      if (!phone || !password) {
+
+        alert("Please fill all required fields.");
 
         return;
 
       }
 
-    }
+
+      /* =================================
+         PROVIDER SIGNUP VALIDATION
+      ================================= */
+
+      if (providerAuthMode === "signup") {
+
+        if (!name) {
+
+          alert("Please enter your full name.");
+
+          return;
+
+        }
 
 
-    try {
+        if (!nic) {
 
-      const endpoint =
-        providerAuthMode === "signup"
-          ? "/api/auth/signup"
-          : "/api/auth/login";
+          alert(
+            "CNIC / NIC is required for provider registration."
+          );
+
+          return;
+
+        }
 
 
-      const body =
-        providerAuthMode === "signup"
-          ? {
-              name: name,
-              phone: phone,
-              password: password,
-              role: "provider",
+        /*
+          Remove spaces and dashes before validation.
+          Example:
+          35202-1234567-1
+          becomes:
+          3520212345671
+        */
 
-              /*
-                This is sent to the backend.
-                The current server.js still needs the
-                CNIC database migration to actually store it.
-              */
-              nic: nic
+        const digitsOnly =
+          nic.replace(/\D/g, "");
+
+
+        if (digitsOnly.length !== 13) {
+
+          alert(
+            "Please enter a valid 13-digit CNIC/NIC number."
+          );
+
+          return;
+
+        }
+
+      }
+
+
+      /* =================================
+         PROVIDER LOGIN
+         CNIC IS NOT SENT
+      ================================= */
+
+      try {
+
+        const endpoint =
+          providerAuthMode === "signup"
+            ? "/api/auth/signup"
+            : "/api/auth/login";
+
+
+        let body;
+
+
+        if (providerAuthMode === "signup") {
+
+          body = {
+
+            name: name,
+
+            phone: phone,
+
+            password: password,
+
+            role: "provider",
+
+            nic: nic
+
+          };
+
+        } else {
+
+          /*
+            LOGIN ONLY SENDS PHONE + PASSWORD.
+            CNIC is completely ignored.
+          */
+
+          body = {
+
+            phone: phone,
+
+            password: password
+
+          };
+
+        }
+
+
+        const response =
+          await fetch(
+            endpoint,
+            {
+
+              method: "POST",
+
+              headers: {
+                "Content-Type": "application/json"
+              },
+
+              body: JSON.stringify(body)
+
             }
-          : {
-              phone: phone,
-              password: password
-            };
+          );
 
 
-      const response =
-        await fetch(endpoint, {
-
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify(body)
-
-        });
+        const data =
+          await response.json();
 
 
-      const data =
-        await response.json();
+        if (!response.ok) {
+
+          alert(
+            data.error ||
+            "Provider authentication failed."
+          );
+
+          return;
+
+        }
 
 
-      if (!response.ok) {
+        if (
+          !data.user ||
+          data.user.role !== "provider"
+        ) {
 
-        alert(
-          data.error ||
-          "Provider authentication failed."
+          alert(
+            "This account is not registered as a provider."
+          );
+
+          return;
+
+        }
+
+
+        localStorage.setItem(
+          "fixoraToken",
+          data.token
         );
 
-        return;
 
-      }
-
-
-      if (!data.user ||
-          data.user.role !== "provider") {
-
-        alert(
-          "This account is not registered as a provider."
+        localStorage.setItem(
+          "fixoraUser",
+          JSON.stringify(data.user)
         );
 
-        return;
+
+        alert(
+          providerAuthMode === "signup"
+            ? "Provider account created successfully!"
+            : "Provider login successful!"
+        );
+
+
+        closeProviderAuth();
+
+
+        const providerMode =
+          document.getElementById("providerMode");
+
+
+        if (providerMode) {
+
+          providerMode.disabled = false;
+
+          providerMode.checked = true;
+
+          if (typeof toggleProviderMode === "function") {
+            toggleProviderMode();
+          }
+
+        }
+
+
+        const providerName =
+          document.getElementById("providerName");
+
+
+        if (
+          providerName &&
+          data.user.name
+        ) {
+
+          providerName.textContent =
+            data.user.name;
+
+        }
+
+
+        const providerSection =
+          document.getElementById("provider");
+
+
+        if (providerSection) {
+
+          providerSection.scrollIntoView({
+            behavior: "smooth"
+          });
+
+        }
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert(
+          "Unable to connect to Fixora server."
+        );
 
       }
-
-
-      localStorage.setItem(
-        "fixoraToken",
-        data.token
-      );
-
-
-      localStorage.setItem(
-        "fixoraUser",
-        JSON.stringify(data.user)
-      );
-
-
-      alert(
-        providerAuthMode === "signup"
-          ? "Provider account created successfully!"
-          : "Provider login successful!"
-      );
-
-
-      closeProviderAuth();
-
-
-      const providerMode =
-        document.getElementById("providerMode");
-
-      if (providerMode) {
-
-        providerMode.disabled = false;
-        providerMode.checked = true;
-
-        toggleProviderMode();
-
-      }
-
-
-      const providerName =
-        document.getElementById("providerName");
-
-      if (
-        providerName &&
-        data.user.name
-      ) {
-
-        providerName.textContent =
-          data.user.name;
-
-      }
-
-
-      const providerSection =
-        document.getElementById("provider");
-
-      if (providerSection) {
-
-        providerSection.scrollIntoView({
-          behavior: "smooth"
-        });
-
-      }
-
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        "Unable to connect to Fixora server."
-      );
 
     }
+  );
 
-  });
+}
 
 
-/* ================================
+/* =================================
    PROVIDER PRIVACY DISPLAY
-================================ */
+================================= */
 
 function protectProviderCustomerInfo() {
 
   const userData =
     localStorage.getItem("fixoraUser");
 
+
   if (!userData) return;
+
 
   try {
 
     const user =
       JSON.parse(userData);
+
 
     if (user.role !== "provider") return;
 
@@ -1419,13 +1490,9 @@ function protectProviderCustomerInfo() {
       .querySelectorAll(".provider-customer")
       .forEach(function(el) {
 
-        /*
-          Never display customer phone number
-          in the provider interface.
-        */
-
         const text =
           el.textContent || "";
+
 
         const customerName =
           text
@@ -1433,12 +1500,14 @@ function protectProviderCustomerInfo() {
             .split("·")[0]
             .trim();
 
+
         el.textContent =
           "Customer: " +
           (customerName || "Customer") +
           " · Contact via Fixora";
 
       });
+
 
   } catch (error) {
 
@@ -1455,16 +1524,18 @@ setInterval(
 );
 
 
-/* ================================
+/* =================================
    MOBILE MENU
-================================ */
+================================= */
 
 function toggleMobileMenu() {
 
   const nav =
     document.getElementById("mainNav");
 
+
   if (!nav) return;
+
 
   nav.classList.toggle("mobile-open");
 
@@ -1477,19 +1548,26 @@ document
   .querySelectorAll("#mainNav a")
   .forEach(function(link) {
 
-    link.addEventListener("click", function() {
+    link.addEventListener(
+      "click",
+      function() {
 
-      const nav =
-        document.getElementById("mainNav");
+        const nav =
+          document.getElementById("mainNav");
 
-      if (nav) {
-        nav.classList.remove("mobile-open");
+
+        if (nav) {
+
+          nav.classList.remove(
+            "mobile-open"
+          );
+
+        }
+
       }
-
-    });
+    );
 
   });
-
 
 </script>
 
