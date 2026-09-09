@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services - Fixora</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <strong>FIX<span>ORA</span></strong>
+    <small>ALL SERVICES. ONE PLACE.</small>
+  </div>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About Us</a>
+    <a href="services.html">Services</a>
+    <a href="index.html#booking">Booking</a>
+    <a href="index.html#contact">Contact</a>
+  </nav>
+</header>
+
+<main>
+
+  <section id="services" class="section">
+
+    <div class="section-head">
+      <div>
+        <h2>Our Service Categories</h2>
+        <p>50+ Services — All in One Place</p>
+      </div>
+    </div>
+
+    <div class="category-grid">
+
+      <button class="category" onclick="filterCategory('Home')">
+        <b>🏠</b>
+        <strong>Home Repair</strong>
+        <small>Plumber, Electrician, Carpenter</small>
+      </button>
+
+      <button class="category" onclick="filterCategory('Appliances')">
+        <b>❄️</b>
+        <strong>AC & Appliances</strong>
+        <small>AC, Fridge, Washing Machine</small>
+      </button>
+
+      <button class="category" onclick="filterCategory('Auto')">
+        <b>🚗</b>
+        <strong>Auto Services</strong>
+        <small>Mechanic, Tyres, Battery</small>
+      </button>
+
+      <button class="category" onclick="filterCategory('Glass')">
+        <b>🪟</b>
+        <strong>Glass & Aluminium</strong>
+        <small>Glass, Windows, Doors</small>
+      </button>
+
+      <button class="category" onclick="filterCategory('Cleaning')">
+        <b>🧹</b>
+        <strong>Cleaning</strong>
+        <small>Home, Sofa, Carpet</small>
+      </button>
+
+      <button class="category" onclick="filterCategory('Moving')">
+        <b>🚚</b>
+        <strong>Moving & Delivery</strong>
+        <small>Shifting, Loading, Delivery</small>
+      </button>
+
+      <button class="category" onclick="filterCategory('Tech')">
+        <b>💻</b>
+        <strong>Tech Services</strong>
+        <small>Laptop, CCTV, Wi-Fi</small>
+      </button>
+
+      <button class="category" onclick="filterCategory('Outdoor')">
+        <b>🌱</b>
+        <strong>Outdoor & Other</strong>
+        <small>Gardening, Solar, Generator</small>
+      </button>
+
+    </div>
+
+    <div id="serviceList" class="service-list"></div>
+
+  </section>
+
+</main>
+
+<footer>
+
+  <div class="footer-brand">
+    <strong>FIX<span>ORA</span></strong>
+    <small>ALL SERVICES. ONE PLACE.</small>
+  </div>
+
+  <div>
+    <h4>Quick Links</h4>
+    <a href="index.html">Home</a>
+    <a href="about.html">About Us</a>
+    <a href="services.html">Services</a>
+    <a href="index.html#booking">Booking</a>
+  </div>
+
+  <div>
+    <h4>Contact Us</h4>
+    <p>0320 7180728</p>
+    <p>support@fixora.pk</p>
+    <p>Karachi, Pakistan</p>
+
+    <div class="social-links">
+      <a href="https://www.facebook.com/" target="_blank">Facebook</a>
+      <a href="https://www.instagram.com/" target="_blank">Instagram</a>
+    </div>
+  </div>
+
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>
