@@ -7,7 +7,7 @@ const { Pool } = require("pg");
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(require("path").join(__dirname, "public")));
 
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "CHANGE_THIS_SECRET";
@@ -188,3 +188,4 @@ app.patch("/api/bookings/:id/status", auth, async (req,res)=>{
 
 initDb().then(()=>app.listen(PORT,()=>console.log(`Fixora API running on http://localhost:${PORT}`)))
 .catch(err=>{console.error("Database connection failed:",err.message);process.exit(1);});
+
