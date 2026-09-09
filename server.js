@@ -110,18 +110,29 @@ app.post("/api/bookings", auth, async (req,res)=>{
 app.get("/api/bookings", auth, async (req,res)=>{
   try{
     const isProvider=req.user.role==="provider";
+    const isAdmin=req.user.role==="admin";
+
     const q=isProvider
       ? `SELECT b.*, u.name AS name, u.phone AS phone
          FROM bookings b
          LEFT JOIN users u ON u.id=b.customer_id
          WHERE b.provider_id=$1 OR b.provider_id IS NULL
          ORDER BY b.created_at DESC, b.id DESC`
-      : `SELECT b.*, u.name AS provider_name, u.phone AS provider_phone
-         FROM bookings b
-         LEFT JOIN users u ON u.id=b.provider_id
-         WHERE b.customer_id=$1
-         ORDER BY b.created_at DESC, b.id DESC`;
-    const r=await pool.query(q,[req.user.id]);
+      : isAdmin
+        ? `SELECT b.*, 
+             c.name AS customer_name, c.phone AS customer_phone,
+             p.name AS provider_name, p.phone AS provider_phone
+           FROM bookings b
+           LEFT JOIN users c ON c.id=b.customer_id
+           LEFT JOIN users p ON p.id=b.provider_id
+           ORDER BY b.created_at DESC, b.id DESC`
+        : `SELECT b.*, u.name AS provider_name, u.phone AS provider_phone
+           FROM bookings b
+           LEFT JOIN users u ON u.id=b.provider_id
+           WHERE b.customer_id=$1
+           ORDER BY b.created_at DESC, b.id DESC`;
+
+    const r=await pool.query(q,isProvider || isAdmin ? [] : [req.user.id]);
     res.json(r.rows);
   }catch(e){
     console.error("GET /api/bookings:",e);
