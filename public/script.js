@@ -511,6 +511,7 @@ if(authForm){
           'fixoraUser',
           JSON.stringify(data.user)
         );
+
         updateAdminVisibility();
 
 
@@ -738,7 +739,9 @@ function openReview(id){
 
 
   const reviewText=
-    document.getElementById("reviewText");
+    document.getElementById(
+      "reviewText"
+    );
 
   if(reviewText){
     reviewText.value="";
@@ -985,34 +988,125 @@ async function toggleAdmin(){
   if(!panel || !locked)return;
 
   let user=null;
+
   try{
-    user=JSON.parse(localStorage.getItem('fixoraUser')||'null');
+
+    user=JSON.parse(
+      localStorage.getItem('fixoraUser')||'null'
+    );
+
   }catch(e){
+
     user=null;
+
   }
+
 
   if(!user || user.role!=='admin'){
+
     panel.style.display='none';
     locked.style.display='block';
+
     alert('Admin login required!');
+
     return;
+
   }
 
-  const open=panel.style.display==='none';
 
-  panel.style.display=open?'block':'none';
-  locked.style.display=open?'none':'block';
+  const open=
+    panel.style.display==='none';
+
+
+  panel.style.display=
+    open?'block':'none';
+
+  locked.style.display=
+    open?'none':'block';
+
 
   if(open){
+
     await renderAdmin();
+
   }
 
 }
 
 
+/* =========================
+   ADMIN BOOKING STATUS
+========================= */
+
+async function updateBookingStatus(id,status){
+
+  const token=
+    localStorage.getItem("fixoraToken");
+
+  if(!token){
+
+    alert("Admin login required!");
+
+    return;
+
+  }
 
 
+  try{
 
+    const response=await fetch(
+      "/api/bookings/"+
+      encodeURIComponent(id)+
+      "/status",
+      {
+        method:"PATCH",
+
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":"Bearer "+token
+        },
+
+        body:JSON.stringify({
+          status:status
+        })
+      }
+    );
+
+
+    const data=await response.json();
+
+
+    if(!response.ok){
+
+      alert(
+        data.error ||
+        "Booking status could not be updated."
+      );
+
+      return;
+
+    }
+
+
+    await renderAdmin();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Unable to connect to Fixora server."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   RENDER ADMIN
+========================= */
 
 async function renderAdmin(){
 
@@ -1042,8 +1136,10 @@ async function renderAdmin(){
 
 
   if(bookingsEl){
+
     bookingsEl.textContent=
       items.length;
+
   }
 
 
@@ -1093,7 +1189,9 @@ async function renderAdmin(){
       ?
 
       items.map(
+
         b=>
+
         '<div class="admin-row">'+
 
           '<div>'+
@@ -1116,15 +1214,34 @@ async function renderAdmin(){
 
           '</div>'+
 
-          '<span class="status '+
-          b.status
-            .toLowerCase()
-            .replace(/\s+/g,"-")+
-          '">'+
-          b.status+
-          '</span>'+
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'+
+
+            '<span class="status '+
+            b.status
+              .toLowerCase()
+              .replace(/\s+/g,"-")+
+            '">'+
+            b.status+
+            '</span>'+
+
+            (
+              b.status==="Pending"
+              ?
+              '<button '+
+              'onclick="updateBookingStatus(\''+
+              b.id+
+              '\',\'Accepted\')" '+
+              'style="padding:8px 14px;border:0;border-radius:8px;cursor:pointer;font-weight:600;">'+
+              'Accept'+
+              '</button>'
+              :
+              ''
+            )+
+
+          '</div>'+
 
         '</div>'
+
       ).join("")
 
       :
@@ -1146,7 +1263,9 @@ async function renderAdmin(){
 
     serviceList.innerHTML=
       services.map(
+
         (s,i)=>
+
         '<div class="service-admin-row">'+
 
           '<span>ðŸ”§ '+s+'</span>'+
@@ -1156,6 +1275,7 @@ async function renderAdmin(){
           ')">Remove</button>'+
 
         '</div>'
+
       ).join("");
 
   }
@@ -1222,6 +1342,7 @@ function addAdminService(){
 
   input.value="";
 
+
   if(category){
     category.value="";
   }
@@ -1241,7 +1362,9 @@ function removeAdminService(i){
   if(
     !services[i]
   ){
+
     return;
+
   }
 
 
@@ -1274,23 +1397,88 @@ function removeAdminService(i){
 renderDashboard();
 
 
-
 /* ADMIN PANEL BUTTON CONTROL */
+
 function updateAdminVisibility(){
-  const adminButton=document.querySelector('button[onclick="toggleAdmin()"]');
-  const adminPanel=document.getElementById('adminPanel');
-  const adminLocked=document.getElementById('adminLocked');
+
+  const adminButton=
+    document.querySelector(
+      'button[onclick="toggleAdmin()"]'
+    );
+
+  const adminPanel=
+    document.getElementById(
+      'adminPanel'
+    );
+
+  const adminLocked=
+    document.getElementById(
+      'adminLocked'
+    );
+
+
   let user=null;
-  try{user=JSON.parse(localStorage.getItem('fixoraUser')||'null');}catch(e){user=null;}
-  const isAdmin=user && String(user.role||'').toLowerCase()==='admin';
-  if(adminButton){adminButton.disabled=!isAdmin;adminButton.style.opacity=isAdmin?'1':'0.5';adminButton.style.cursor=isAdmin?'pointer':'not-allowed';}
-  if(!isAdmin){if(adminPanel)adminPanel.style.display='none';if(adminLocked)adminLocked.style.display='block';}
+
+
+  try{
+
+    user=
+      JSON.parse(
+        localStorage.getItem(
+          'fixoraUser'
+        )||'null'
+      );
+
+  }catch(e){
+
+    user=null;
+
+  }
+
+
+  const isAdmin=
+    user &&
+    String(
+      user.role||''
+    ).toLowerCase()==='admin';
+
+
+  if(adminButton){
+
+    adminButton.disabled=
+      !isAdmin;
+
+    adminButton.style.opacity=
+      isAdmin?'1':'0.5';
+
+    adminButton.style.cursor=
+      isAdmin
+      ?
+      'pointer'
+      :
+      'not-allowed';
+
+  }
+
+
+  if(!isAdmin){
+
+    if(adminPanel)
+      adminPanel.style.display='none';
+
+    if(adminLocked)
+      adminLocked.style.display='block';
+
+  }
+
 }
-document.addEventListener('DOMContentLoaded',function(){updateAdminVisibility();});
 
 
+document.addEventListener(
+  'DOMContentLoaded',
+  function(){
 
+    updateAdminVisibility();
 
-
-
-
+  }
+);
